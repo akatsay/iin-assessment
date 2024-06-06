@@ -1,19 +1,19 @@
-import minimist from 'minimist';
+import minimist = require('minimist');
 import {IResponse, IData} from "./types";
 
 const args = minimist(process.argv.slice(2));
-const stateNameArg: string = args['state_name'] ? args['state_name'].toLowerCase() : '';
-const fullReportArg: number = args['full_report'] ? args['full_report']: '';
+const stateNameArg: string = typeof args['state_name'] === 'string' ? args['state_name'] : '';
+const fullReportArg: number = typeof args['full_report'] === 'number' ? args['full_report']: 0;
 
 // Check if state_name or full_report is passed properly and provide usage guidelines
 if (!stateNameArg && !fullReportArg || stateNameArg && fullReportArg) {
   console.log(`
   This application accepts only one argument at a time.
- 
+
   Usage:
-  npm run start -- --state_name 'state_name' OR npm run start -- --full_report 'year'
-  Example: npm run start -- --state_name 'california'
-  Example: npm run start -- --full_report '2020' **Note only years 2013-2021 are supported.
+  node app.js --state_name 'state_name' OR node app.js --full_report 'year'
+  Example: node app.js --state_name 'california'
+  Example: node app.js --full_report 2020 **Note only years 2013-2021 are available.
   Arguments:
   --state_name 'state_name' - returns the population history for the passed state in chronological order.
   --full_report 'year' - to return a list of state names and populations in descending order by population for the passed year.
@@ -25,12 +25,12 @@ if (!stateNameArg && !fullReportArg || stateNameArg && fullReportArg) {
  * @description Retrieves state data from the DataUSA API.
  * @return {Promise<IData[]>} A promise that resolves to an array of state data.
  */
-const getStateData = async (): Promise<IData[]> => {
+const getStatesData = async (): Promise<IData[]> => {
   try {
     const response = await fetch('https://datausa.io/api/data?drilldowns=State&measures=Population');
     const responseData: IResponse = await response.json();
-    const stateData: IData[] = responseData.data;
-    return stateData;
+    const statesData: IData[] = responseData.data;
+    return statesData;
   } catch (error) {
     console.error(error);
     process.exit(0)
@@ -40,13 +40,15 @@ const getStateData = async (): Promise<IData[]> => {
 /**
  * @description Retrieves and aggregates data based on the provided arguments.
  * @returns {Promise<IData[] | void>} An array of aggregated data or void if no data is available.
+ * @param {string} state - The name of the state to retrieve data for.
+ * @param {number} year - The year to retrieve data for.
  */
-const aggregateData = async () => {
-  const stateData: IData[] = await getStateData();
+const aggregateData = async (state: string, year: number) => {
+  const statesData: IData[] = await getStatesData();
 
   // returns the population history for the passed state in chronological order.
-  if (stateNameArg) {
-    const filteredStateData = stateData.filter((item) => item.State.toLowerCase() === stateNameArg);
+  if (state) {
+    const filteredStateData = statesData.filter((item) => item.State.toLowerCase() === state);
     const mappedStateData = filteredStateData.map((item) => {
       return {Year: item['ID Year'], Population: item.Population};
       }
@@ -65,8 +67,8 @@ const aggregateData = async () => {
     return sortedArray;
   }
 
-  if (fullReportArg && stateData) {
-    const filteredStateData = stateData.filter((item) => item["ID Year"] === fullReportArg);
+  if (year && statesData) {
+    const filteredStateData = statesData.filter((item) => item["ID Year"] === year);
     const mappedStateData = filteredStateData.map((item) => {
         return {State: item.State, Year: item['ID Year'], Population: item.Population};
       }
@@ -84,26 +86,27 @@ const aggregateData = async () => {
     });
     return sortedArray;
   }
-  return stateData;
+  return statesData;
 }
 
 /**
  *@description Asynchronously displays aggregated data based on the provided arguments.
- * If `stateNameArg` is provided, it logs the data for the specified state.
- * If `fullReportArg` is provided, it logs the data for the specified year.
+ * If `state` is provided, it logs the data for the specified state.
+ * If `year` is provided, it logs the data for the specified year.
  * If neither argument is provided, it logs the raw dataset.
- *
+ * @param {string} state - The name of the state to display data for.
+ * @param {number} year - The year to display data for.
  * @returns {Promise<void>} A Promise that resolves when the data is displayed.
  */
-export const DisplayData = async () => {
-  const result = await aggregateData();
-  if (stateNameArg) {
-    console.log(`Data for state of ${stateNameArg}:`);
+export const DisplayData = async (state: string, year: number) => {
+  const result = await aggregateData(state, year);
+  if (state) {
+    console.log(`Data for state of ${state}:`);
     console.log(result)
     process.exit(0);
   }
-  if (fullReportArg) {
-    console.log(`Data for year ${fullReportArg}:`);
+  if (year) {
+    console.log(`Data for year ${year}:`);
     console.log(result)
     process.exit(0);
   }
@@ -111,7 +114,7 @@ export const DisplayData = async () => {
   console.log(result)
 };
 
-DisplayData().then();
+DisplayData(stateNameArg, fullReportArg).then();
 
 
 

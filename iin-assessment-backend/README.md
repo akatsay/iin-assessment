@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a backend program developed for the IIN assessment. It retrieves data from the DataUSA API and provides population-related information based on specified parameters.
+This is a node application developed for the IIN assessment. It retrieves data from the DataUSA API and provides population-related information based on specified parameters via command-line.
 
 ## Installation
 
@@ -24,7 +24,7 @@ Once Node.js and TypeScript are installed, you can proceed with the following st
 
 1. Clone the repository to your local machine:
    ```
-   git clone <repository-url>
+   git clone https://github.com/akatsay/iin-assessment.git
    ```
 
 2. Navigate to the project directory:
@@ -39,24 +39,22 @@ Once Node.js and TypeScript are installed, you can proceed with the following st
 
 ## Usage
 
-To run the program, you can use the provided npm scripts defined in the package.json file:
+1. Build the TypeScript files:
+    ```
+    npm run build
+    ```
 
-- **Build the TypeScript files:**
-  ```
-  npm run build
-  ```
+2. Navigate to .dist folder
+    ```
+    cd .dist
+    ```
 
-- **Run tests:**
-  ```
-  npm test
-  ```
+3. Run the program with specified arguments
+    ```
+    node app.js 
+    ```
 
-- **Start the program:**
-  ```
-  npm start
-  ```
-
-By default, the program retrieves population-related data based on the specified parameters. You can pass parameters to the program to customize its behavior. Supported parameters are:
+The program retrieves population-related data based on the specified parameters. Supported parameters are:
 
 - `--state_name 'state_name'`: Retrieves the population history for the specified state in chronological order.
 - `--full_report 'year'`: Retrieves a list of state names and populations in descending order by population for the specified year (2013-2021 supported).
@@ -64,23 +62,12 @@ By default, the program retrieves population-related data based on the specified
 Example usage:
 
 ```
-npm start -- --state_name 'california'
-npm start -- --full_report '2020'
-```
-
-## Tests
-
-The program includes Jest tests to ensure its functionality. You can run the tests using the following command:
-
-```
-npm test
+node app.js --state_name 'california'
+node app.js --full_report '2020'
 ```
 
 ## Dependencies
 
 - **minimist**: ^1.2.8
 - **@types/minimist**: "^1.2.5"
-- **@types/jest**: ^29.5.12
 - **@types/node**: ^20.14.1
-- **jest**: ^29.7.0
-- **ts-jest**: ^29.1.4

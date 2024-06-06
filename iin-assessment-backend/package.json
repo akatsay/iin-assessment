@@ -5,18 +5,14 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "tsc ./src/app.spec.ts && jest",
-    "start": "npm run build && node ./.dist/app.js"
+    "dev": "npm run build && node ./.dist/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.1",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.1.4",
-    "@types/minimist": "^1.2.5"
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.14.1"
   },
   "dependencies": {
     "minimist": "^1.2.8"
